@@ -14,6 +14,7 @@ buildscript {
 }
 
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
@@ -29,6 +30,14 @@ eclipse {
 }
 
 repositories {
+    maven {
+        name "CargoChief Maven Snapshots Repo"
+        url "s3://cargochief-maven2/snapshots"
+        authentication {
+           awsIm(AwsImAuthentication) // load from EC2 role or env var
+        }
+    }
+    mavenLocal()
     mavenCentral()
     jcenter()
 }
@@ -50,4 +59,20 @@ task sourcesJar(type: Jar) {
 artifacts {
     archives jar
     archives sourcesJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "s3://cargochief-maven2/snapshots"
+            authentication {
+               awsIm(AwsImAuthentication) // load from EC2 role or env var
+            }
+        }
+    }
 }
